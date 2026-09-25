@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>User Management</title>
+
+    <link
+        rel="stylesheet"
+        href="/css/style.css"
+    >
+
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+    <h1>User Management</h1>
+
+    <p>
+        Administrator:
+        <strong>
+            <%= sessionUsername || "Administrator" %>
+        </strong>
+    </p>
+
+    <p>
+        <a href="/users/create">
+            Create New User
+        </a>
+    </p>
+
+    <hr>
+
+    <table border="1" cellpadding="10" width="100%">
+
+        <thead>
+
+            <tr>
+
+                <th>Username</th>
+
+                <th>Email</th>
+
+                <th>Role</th>
+
+                <th>Status</th>
+
+                <th>Actions</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            <% users.forEach(user => { %>
+
+                <tr>
+
+                    <td>
+                        <%= user.username %>
+                    </td>
+
+                    <td>
+                        <%= user.email %>
+                    </td>
+
+                    <td>
+                        <%= user.role %>
+                    </td>
+
+                    <td>
+
+                        <% if (user.isActive !== false) { %>
+
+                            Active
+
+                        <% } else { %>
+
+                            Deactivated
+
+                        <% } %>
+
+                    </td>
+
+                    <td>
+
+                        <a
+                            href="/users/edit/<%= user._id %>"
+                        >
+                            Edit
+                        </a>
+
+                        <% if (user.isActive !== false) { %>
+
+                            <form
+                                method="POST"
+                                action="/users/deactivate/<%= user._id %>"
+                                style="display:inline;"
+                            >
+
+                                <button type="submit">
+                                    Deactivate
+                                </button>
+
+                            </form>
+
+                        <% } else { %>
+
+                            <form
+                                method="POST"
+                                action="/users/activate/<%= user._id %>"
+                                style="display:inline;"
+                            >
+
+                                <button type="submit">
+                                    Activate
+                                </button>
+
+                            </form>
+
+                        <% } %>
+
+                    </td>
+
+                </tr>
+
+            <% }) %>
+
+        </tbody>
+
+    </table>
+
+    <br>
+
+    <a href="/dashboard">
+        Back to Dashboard
+    </a>
+
+</div>
+
+</body>
+
+</html>

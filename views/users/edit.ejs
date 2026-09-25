@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Edit User</title>
+
+    <link
+        rel="stylesheet"
+        href="/css/style.css"
+    >
+
+</head>
+
+<body>
+
+<div class="auth-container">
+
+    <h1>Edit User</h1>
+
+    <% if (error) { %>
+
+        <div class="error">
+            <%= error %>
+        </div>
+
+    <% } %>
+
+    <form
+        method="POST"
+        action="/users/edit/<%= user._id %>"
+    >
+
+        <label>
+            Username
+        </label>
+
+        <input
+            type="text"
+            name="username"
+            value="<%= user.username %>"
+            required
+        >
+
+        <label>
+            Email
+        </label>
+
+        <input
+            type="email"
+            name="email"
+            value="<%= user.email %>"
+            required
+        >
+
+        <label>
+            Role
+        </label>
+
+        <select name="role" required>
+
+            <option
+                value="staff"
+                <%= user.role === "staff" ? "selected" : "" %>
+            >
+                Staff
+            </option>
+
+            <option
+                value="technician"
+                <%= user.role === "technician" ? "selected" : "" %>
+            >
+                Technician
+            </option>
+
+            <option
+                value="administrator"
+                <%= user.role === "administrator" ? "selected" : "" %>
+            >
+                Administrator
+            </option>
+
+        </select>
+
+        <label>
+            New Password
+        </label>
+
+        <input
+            type="password"
+            name="password"
+            minlength="8"
+            placeholder="Leave blank to keep current password"
+        >
+
+        <button type="submit">
+            Save Changes
+        </button>
+
+    </form>
+
+    <p>
+        <a href="/users">
+            Back to User Management
+        </a>
+    </p>
+
+</div>
+
+</body>
+
+</html>

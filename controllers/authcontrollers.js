@@ -193,7 +193,7 @@ exports.login = async (req, res) => {
         // GENERIC ERROR
         // ----------------------------------------
 
-        if (!user) {
+        if (!user || user.isActive === false) {
 
             return res.render("login", {
                 error:
