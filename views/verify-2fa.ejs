@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Two-Factor Authentication
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="/css/style.css"
+    >
+
+</head>
+
+<body>
+
+    <div class="auth-container">
+
+        <h1>
+            Repair History System
+        </h1>
+
+        <h2>
+            Two-Factor Authentication
+        </h2>
+
+        <p>
+            Open Google Authenticator and
+            enter the 6-digit verification code.
+        </p>
+
+        <% if (error) { %>
+
+            <div class="error">
+                <%= error %>
+            </div>
+
+        <% } %>
+
+        <form
+            method="POST"
+            action="/auth/verify-2fa"
+        >
+
+            <label for="code">
+                Authentication Code
+            </label>
+
+            <input
+                type="text"
+                id="code"
+                name="code"
+                inputmode="numeric"
+                pattern="[0-9]{6}"
+                maxlength="6"
+                autocomplete="one-time-code"
+                required
+            >
+
+            <button type="submit">
+                Verify Code
+            </button>
+
+        </form>
+
+        <p>
+            <a href="/auth/login">
+                Back to Login
+            </a>
+        </p>
+
+    </div>
+
+</body>
+
+</html>

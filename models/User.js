@@ -32,12 +32,25 @@ const userSchema = new mongoose.Schema(
             default: "staff"
         },
 
+        // ========================================
+        // TWO-FACTOR AUTHENTICATION
+        // ========================================
+
         twoFactorEnabled: {
             type: Boolean,
             default: false
         },
 
+        // Permanent Google Authenticator secret
         twoFactorSecret: {
+            type: String,
+            default: null
+        },
+
+        // Temporary secret used during setup
+        // It becomes permanent only after
+        // the user successfully verifies a code.
+        twoFactorTempSecret: {
             type: String,
             default: null
         }

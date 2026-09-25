@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Setup Google Authenticator
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="/css/style.css"
+    >
+
+</head>
+
+<body>
+
+    <div class="auth-container">
+
+        <h1>
+            Google Authenticator Setup
+        </h1>
+
+        <% if (error) { %>
+
+            <div class="error">
+                <%= error %>
+            </div>
+
+        <% } %>
+
+        <% if (success) { %>
+
+            <div class="success">
+                <%= success %>
+            </div>
+
+        <% } %>
+
+        <% if (qrCode) { %>
+
+            <h3>
+                Step 1
+            </h3>
+
+            <p>
+                Open Google Authenticator
+                on your phone.
+            </p>
+
+            <h3>
+                Step 2
+            </h3>
+
+            <p>
+                Scan the QR code below.
+            </p>
+
+            <div class="qr-container">
+
+                <img
+                    src="<%= qrCode %>"
+                    alt="Google Authenticator QR Code"
+                >
+
+            </div>
+
+            <h3>
+                Step 3
+            </h3>
+
+            <p>
+                Enter the 6-digit code shown
+                in Google Authenticator.
+            </p>
+
+            <form
+                method="POST"
+                action="/auth/setup-2fa"
+            >
+
+                <label for="code">
+                    Verification Code
+                </label>
+
+                <input
+                    type="text"
+                    id="code"
+                    name="code"
+                    inputmode="numeric"
+                    pattern="[0-9]{6}"
+                    maxlength="6"
+                    autocomplete="one-time-code"
+                    required
+                >
+
+                <button type="submit">
+                    Enable 2FA
+                </button>
+
+            </form>
+
+            <hr>
+
+            <p>
+                If you cannot scan the QR code,
+                manually enter this secret:
+            </p>
+
+            <p>
+                <strong>
+                    <%= manualSecret %>
+                </strong>
+            </p>
+
+        <% } %>
+
+        <p>
+            <a href="/dashboard">
+                Back to Dashboard
+            </a>
+        </p>
+
+    </div>
+
+</body>
+
+</html>
