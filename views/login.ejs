@@ -1,9 +1,7 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -11,86 +9,89 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>
-        Repair History System - Login
-    </title>
+    <title>Repair History System - Login</title>
 
     <link
         rel="stylesheet"
         href="/css/style.css"
     >
 
+    <!-- Google reCAPTCHA -->
+    <script
+        src="https://www.google.com/recaptcha/api.js"
+        async
+        defer
+    ></script>
 </head>
-
 
 <body>
 
     <div class="auth-container">
 
-        <h1>
-            Repair History System
-        </h1>
+        <h1>Repair History System</h1>
 
-        <h2>
-            Login
-        </h2>
-
+        <h2>Login</h2>
 
         <% if (error) { %>
 
             <div class="error">
-
                 <%= error %>
-
             </div>
 
         <% } %>
-
 
         <form
             method="POST"
             action="/auth/login"
         >
 
-            <label>
+            <!-- Email -->
+
+            <label for="email">
                 Email
             </label>
 
             <input
                 type="email"
+                id="email"
                 name="email"
                 required
             >
 
+            <!-- Password -->
 
-            <label>
+            <label for="password">
                 Password
             </label>
 
             <input
                 type="password"
+                id="password"
                 name="password"
                 required
             >
 
+            <!-- reCAPTCHA -->
+
+            <div
+                class="g-recaptcha"
+                data-sitekey="<%= recaptchaSiteKey %>"
+            ></div>
+
+            <!-- Login -->
 
             <button type="submit">
-
                 Login
-
             </button>
 
         </form>
 
-
         <p>
-
             Don't have an account?
 
             <a href="/auth/register">
                 Register
             </a>
-
         </p>
 
     </div>
