@@ -11,10 +11,35 @@ const {
 } = require("../utils/totp");
 
 // ========================================
+// VALIDATION HELPERS
+// STA-006
+// ========================================
+
+const isValidEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
+const isValidPassword = (password) => {
+    return (
+        typeof password === "string" &&
+        password.length >= 8 &&
+        password.length <= 128
+    );
+};
+
+const isValidUsername = (username) => {
+    return (
+        typeof username === "string" &&
+        /^[a-zA-Z0-9_]{3,30}$/.test(username)
+    );
+};
+
+// ========================================
 // LOGIN PAGE
 // ========================================
 
 exports.showLogin = (req, res) => {
+
     res.render("login", {
         error: null,
         recaptchaSiteKey:
@@ -27,29 +52,30 @@ exports.showLogin = (req, res) => {
 // ========================================
 
 const verifyRecaptcha = async (token) => {
+
     try {
+
         if (!token) {
             return false;
         }
 
-        const response =
-            await axios.post(
-                "https://www.google.com/recaptcha/api/siteverify",
-                null,
-                {
-                    params: {
-                        secret:
-                            process.env
-                                .RECAPTCHA_SECRET_KEY,
+        const response = await axios.post(
+            "https://www.google.com/recaptcha/api/siteverify",
+            null,
+            {
+                params: {
+                    secret:
+                        process.env.RECAPTCHA_SECRET_KEY,
 
-                        response: token
-                    }
+                    response: token
                 }
-            );
+            }
+        );
 
         return response.data.success === true;
 
     } catch (error) {
+
         console.error(
             "reCAPTCHA verification error:",
             error.message
@@ -60,11 +86,37 @@ const verifyRecaptcha = async (token) => {
 };
 
 // ========================================
+// REGENERATE SESSION
+// STA-006
+// ========================================
+
+const regenerateSession = (req) => {
+
+    return new Promise((resolve, reject) => {
+
+        req.session.regenerate((error) => {
+
+            if (error) {
+                return reject(error);
+            }
+
+            resolve();
+        });
+    });
+};
+
+// ========================================
 // LOGIN
+// STA-001
+// STA-002
+// STA-003
+// STA-006
 // ========================================
 
 exports.login = async (req, res) => {
+
     try {
+
         const {
             email,
             password,
@@ -72,10 +124,35 @@ exports.login = async (req, res) => {
                 recaptchaToken
         } = req.body;
 
-        if (!email || !password) {
+        // ----------------------------------------
+        // SERVER-SIDE INPUT VALIDATION
+        // ----------------------------------------
+
+        if (
+            typeof email !== "string" ||
+            typeof password !== "string"
+        ) {
+
             return res.render("login", {
                 error:
-                    "Please enter your email and password.",
+                    "Invalid email or password.",
+
+                recaptchaSiteKey:
+                    process.env.RECAPTCHA_SITE_KEY
+            });
+        }
+
+        const normalizedEmail =
+            email.trim().toLowerCase();
+
+        if (
+            !isValidEmail(normalizedEmail) ||
+            !isValidPassword(password)
+        ) {
+
+            return res.render("login", {
+                error:
+                    "Invalid email or password.",
 
                 recaptchaSiteKey:
                     process.env.RECAPTCHA_SITE_KEY
@@ -83,7 +160,8 @@ exports.login = async (req, res) => {
         }
 
         // ----------------------------------------
-        // reCAPTCHA
+        // RECAPTCHA
+        // STA-002
         // ----------------------------------------
 
         const recaptchaValid =
@@ -92,6 +170,7 @@ exports.login = async (req, res) => {
             );
 
         if (!recaptchaValid) {
+
             return res.render("login", {
                 error:
                     "Please complete the reCAPTCHA verification.",
@@ -102,16 +181,20 @@ exports.login = async (req, res) => {
         }
 
         // ----------------------------------------
-        // Find user
+        // FIND USER
         // ----------------------------------------
 
         const user =
             await User.findOne({
-                email:
-                    email.toLowerCase()
+                email: normalizedEmail
             });
 
+        // ----------------------------------------
+        // GENERIC ERROR
+        // ----------------------------------------
+
         if (!user) {
+
             return res.render("login", {
                 error:
                     "Invalid email or password.",
@@ -122,7 +205,7 @@ exports.login = async (req, res) => {
         }
 
         // ----------------------------------------
-        // Verify password
+        // PASSWORD VERIFICATION
         // ----------------------------------------
 
         const passwordMatch =
@@ -132,6 +215,7 @@ exports.login = async (req, res) => {
             );
 
         if (!passwordMatch) {
+
             return res.render("login", {
                 error:
                     "Invalid email or password.",
@@ -142,13 +226,22 @@ exports.login = async (req, res) => {
         }
 
         // ----------------------------------------
+        // REGENERATE SESSION
+        // STA-006
+        // ----------------------------------------
+
+        await regenerateSession(req);
+
+        // ----------------------------------------
         // CHECK 2FA
+        // STA-003
         // ----------------------------------------
 
         if (
             user.twoFactorEnabled &&
             user.twoFactorSecret
         ) {
+
             req.session.pending2FAUserId =
                 user._id.toString();
 
@@ -158,7 +251,7 @@ exports.login = async (req, res) => {
         }
 
         // ----------------------------------------
-        // NORMAL LOGIN
+        // AUTHENTICATED SESSION
         // ----------------------------------------
 
         req.session.userId =
@@ -170,14 +263,20 @@ exports.login = async (req, res) => {
         req.session.username =
             user.username;
 
-        return res.redirect("/dashboard");
+        return res.redirect(
+            "/dashboard"
+        );
 
     } catch (error) {
-        console.error(error);
+
+        console.error(
+            "Login error:",
+            error.message
+        );
 
         return res.render("login", {
             error:
-                "An unexpected error occurred.",
+                "Unable to process login.",
 
             recaptchaSiteKey:
                 process.env.RECAPTCHA_SITE_KEY
@@ -194,41 +293,35 @@ exports.showVerify2FA = async (
     req,
     res
 ) => {
-    try {
-        if (
-            !req.session.pending2FAUserId
-        ) {
-            return res.redirect(
-                "/auth/login"
-            );
-        }
 
-        return res.render(
-            "verify-2fa",
-            {
-                error: null
-            }
-        );
-
-    } catch (error) {
-        console.error(error);
+    if (!req.session.pending2FAUserId) {
 
         return res.redirect(
             "/auth/login"
         );
     }
+
+    return res.render(
+        "verify-2fa",
+        {
+            error: null
+        }
+    );
 };
 
 // ========================================
 // VERIFY 2FA CODE
 // STA-004
+// STA-006
 // ========================================
 
 exports.verify2FA = async (
     req,
     res
 ) => {
+
     try {
+
         const {
             code
         } = req.body;
@@ -236,20 +329,26 @@ exports.verify2FA = async (
         if (
             !req.session.pending2FAUserId
         ) {
+
             return res.redirect(
                 "/auth/login"
             );
         }
 
+        // ----------------------------------------
+        // SERVER-SIDE CODE VALIDATION
+        // ----------------------------------------
+
         if (
-            !code ||
+            typeof code !== "string" ||
             !/^\d{6}$/.test(code)
         ) {
+
             return res.render(
                 "verify-2fa",
                 {
                     error:
-                        "Please enter the 6-digit verification code."
+                        "Invalid verification code."
                 }
             );
         }
@@ -264,6 +363,7 @@ exports.verify2FA = async (
             !user.twoFactorEnabled ||
             !user.twoFactorSecret
         ) {
+
             return res.redirect(
                 "/auth/login"
             );
@@ -276,6 +376,7 @@ exports.verify2FA = async (
             );
 
         if (!valid) {
+
             return res.render(
                 "verify-2fa",
                 {
@@ -286,7 +387,13 @@ exports.verify2FA = async (
         }
 
         // ----------------------------------------
-        // CREATE AUTHENTICATED SESSION
+        // REGENERATE SESSION AGAIN
+        // ----------------------------------------
+
+        await regenerateSession(req);
+
+        // ----------------------------------------
+        // FULLY AUTHENTICATED SESSION
         // ----------------------------------------
 
         req.session.userId =
@@ -298,20 +405,22 @@ exports.verify2FA = async (
         req.session.username =
             user.username;
 
-        delete req.session.pending2FAUserId;
-
         return res.redirect(
             "/dashboard"
         );
 
     } catch (error) {
-        console.error(error);
+
+        console.error(
+            "2FA verification error:",
+            error.message
+        );
 
         return res.render(
             "verify-2fa",
             {
                 error:
-                    "An unexpected error occurred."
+                    "Unable to verify authentication code."
             }
         );
     }
@@ -326,8 +435,11 @@ exports.showSetup2FA = async (
     req,
     res
 ) => {
+
     try {
+
         if (!req.session.userId) {
+
             return res.redirect(
                 "/auth/login"
             );
@@ -339,13 +451,14 @@ exports.showSetup2FA = async (
             );
 
         if (!user) {
+
             return res.redirect(
                 "/auth/login"
             );
         }
 
-        // Already enabled
         if (user.twoFactorEnabled) {
+
             return res.render(
                 "setup-2fa",
                 {
@@ -358,7 +471,6 @@ exports.showSetup2FA = async (
             );
         }
 
-        // Generate a temporary secret
         const secret =
             generateSecret();
 
@@ -389,7 +501,11 @@ exports.showSetup2FA = async (
         );
 
     } catch (error) {
-        console.error(error);
+
+        console.error(
+            "2FA setup error:",
+            error.message
+        );
 
         return res.render(
             "setup-2fa",
@@ -411,10 +527,11 @@ exports.showSetup2FA = async (
 
 exports.completeSetup2FA =
     async (req, res) => {
+
         try {
-            if (
-                !req.session.userId
-            ) {
+
+            if (!req.session.userId) {
+
                 return res.redirect(
                     "/auth/login"
                 );
@@ -430,6 +547,7 @@ exports.completeSetup2FA =
                 );
 
             if (!user) {
+
                 return res.redirect(
                     "/auth/login"
                 );
@@ -438,6 +556,7 @@ exports.completeSetup2FA =
             if (
                 !user.twoFactorTempSecret
             ) {
+
                 return res.render(
                     "setup-2fa",
                     {
@@ -451,19 +570,19 @@ exports.completeSetup2FA =
             }
 
             if (
-                !code ||
+                typeof code !== "string" ||
                 !/^\d{6}$/.test(code)
             ) {
+
                 return res.render(
                     "setup-2fa",
                     {
                         error:
-                            "Please enter the 6-digit verification code.",
+                            "Invalid verification code.",
                         success: null,
                         qrCode: null,
                         manualSecret:
-                            user.twoFactorTempSecret,
-                        qrCode: null
+                            user.twoFactorTempSecret
                     }
                 );
             }
@@ -475,6 +594,7 @@ exports.completeSetup2FA =
                 );
 
             if (!valid) {
+
                 const otpAuthUrl =
                     generateOtpAuthUrl(
                         user.twoFactorTempSecret,
@@ -499,10 +619,6 @@ exports.completeSetup2FA =
                 );
             }
 
-            // ----------------------------------------
-            // ACTIVATE 2FA
-            // ----------------------------------------
-
             user.twoFactorSecret =
                 user.twoFactorTempSecret;
 
@@ -526,7 +642,11 @@ exports.completeSetup2FA =
             );
 
         } catch (error) {
-            console.error(error);
+
+            console.error(
+                "2FA setup completion error:",
+                error.message
+            );
 
             return res.render(
                 "setup-2fa",
@@ -549,6 +669,7 @@ exports.showRegister = (
     req,
     res
 ) => {
+
     res.render(
         "register",
         {
@@ -559,13 +680,16 @@ exports.showRegister = (
 
 // ========================================
 // REGISTRATION
+// STA-001 / STA-006
 // ========================================
 
 exports.register = async (
     req,
     res
 ) => {
+
     try {
+
         const {
             username,
             email,
@@ -573,25 +697,79 @@ exports.register = async (
             confirmPassword
         } = req.body;
 
+        // ----------------------------------------
+        // SERVER-SIDE VALIDATION
+        // ----------------------------------------
+
         if (
-            !username ||
-            !email ||
-            !password ||
-            !confirmPassword
+            typeof username !== "string" ||
+            typeof email !== "string" ||
+            typeof password !== "string" ||
+            typeof confirmPassword !== "string"
         ) {
+
             return res.render(
                 "register",
                 {
                     error:
-                        "Please complete all fields."
+                        "Please provide valid registration information."
+                }
+            );
+        }
+
+        const cleanUsername =
+            username.trim();
+
+        const normalizedEmail =
+            email.trim().toLowerCase();
+
+        if (
+            !isValidUsername(
+                cleanUsername
+            )
+        ) {
+
+            return res.render(
+                "register",
+                {
+                    error:
+                        "Username must be 3-30 characters and contain only letters, numbers, and underscores."
                 }
             );
         }
 
         if (
-            password !==
-            confirmPassword
+            !isValidEmail(
+                normalizedEmail
+            )
         ) {
+
+            return res.render(
+                "register",
+                {
+                    error:
+                        "Please enter a valid email address."
+                }
+            );
+        }
+
+        if (
+            !isValidPassword(password)
+        ) {
+
+            return res.render(
+                "register",
+                {
+                    error:
+                        "Password must be between 8 and 128 characters."
+                }
+            );
+        }
+
+        if (
+            password !== confirmPassword
+        ) {
+
             return res.render(
                 "register",
                 {
@@ -601,28 +779,38 @@ exports.register = async (
             );
         }
 
+        // ----------------------------------------
+        // CHECK EXISTING ACCOUNT
+        // ----------------------------------------
+
         const existingUser =
             await User.findOne({
                 $or: [
                     {
                         email:
-                            email.toLowerCase()
+                            normalizedEmail
                     },
                     {
-                        username
+                        username:
+                            cleanUsername
                     }
                 ]
             });
 
         if (existingUser) {
+
             return res.render(
                 "register",
                 {
                     error:
-                        "Username or email is already registered."
+                        "Unable to create the account with the information provided."
                 }
             );
         }
+
+        // ----------------------------------------
+        // HASH PASSWORD
+        // ----------------------------------------
 
         const hashedPassword =
             await bcrypt.hash(
@@ -632,12 +820,18 @@ exports.register = async (
 
         const user =
             new User({
-                username,
+                username:
+                    cleanUsername,
+
                 email:
-                    email.toLowerCase(),
+                    normalizedEmail,
+
                 password:
                     hashedPassword,
-                role: "staff",
+
+                role:
+                    "staff",
+
                 twoFactorEnabled:
                     false
             });
@@ -649,13 +843,17 @@ exports.register = async (
         );
 
     } catch (error) {
-        console.error(error);
+
+        console.error(
+            "Registration error:",
+            error.message
+        );
 
         return res.render(
             "register",
             {
                 error:
-                    "Registration failed."
+                    "Unable to create the account."
             }
         );
     }
@@ -669,15 +867,25 @@ exports.logout = (
     req,
     res
 ) => {
+
     req.session.destroy(
         (error) => {
+
             if (error) {
-                console.error(error);
+
+                console.error(
+                    "Logout error:",
+                    error.message
+                );
 
                 return res.redirect(
                     "/dashboard"
                 );
             }
+
+            res.clearCookie(
+                "connect.sid"
+            );
 
             res.redirect(
                 "/auth/login"
