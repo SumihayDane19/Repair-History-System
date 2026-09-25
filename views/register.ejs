@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Create Account
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="/css/style.css"
+    >
+
+</head>
+
+
+<body>
+
+    <div class="auth-container">
+
+        <h1>
+            Create Account
+        </h1>
+
+
+        <% if (error) { %>
+
+            <div class="error">
+
+                <%= error %>
+
+            </div>
+
+        <% } %>
+
+
+        <form
+            method="POST"
+            action="/auth/register"
+        >
+
+            <label>
+                Username
+            </label>
+
+            <input
+                type="text"
+                name="username"
+                required
+            >
+
+
+            <label>
+                Email
+            </label>
+
+            <input
+                type="email"
+                name="email"
+                required
+            >
+
+
+            <label>
+                Password
+            </label>
+
+            <input
+                type="password"
+                name="password"
+                minlength="8"
+                required
+            >
+
+
+            <label>
+                Confirm Password
+            </label>
+
+            <input
+                type="password"
+                name="confirmPassword"
+                minlength="8"
+                required
+            >
+
+
+            <button type="submit">
+
+                Create Account
+
+            </button>
+
+        </form>
+
+
+        <p>
+
+            Already have an account?
+
+            <a href="/auth/login">
+                Login
+            </a>
+
+        </p>
+
+    </div>
+
+</body>
+
+</html>
