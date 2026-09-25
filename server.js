@@ -7,6 +7,7 @@ const connectDB = require("./config/database");
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/users");
 const auditRoutes = require("./routes/audit");
+const backupRoutes = require("./routes/backup");
 
 const app = express();
 
@@ -83,6 +84,12 @@ app.use("/users", userRoutes);
 // ========================================
 
 app.use("/audit", auditRoutes);
+
+// ========================================
+// BACKUP ROUTES
+// ========================================
+
+app.use("/backup", backupRoutes);
 
 // ========================================
 // DASHBOARD
