@@ -1,17 +1,348 @@
+:root {
+    --ink: #17252b;
+    --muted: #607178;
+    --paper: #fffdf8;
+    --paper-deep: #f5f1e8;
+    --line: #d9e2df;
+    --teal: #0f766e;
+    --teal-dark: #115e59;
+    --teal-soft: #e5f1ee;
+    --amber: #f2b84b;
+    --error: #b42318;
+    --error-soft: #fff0ed;
+    --success: #176b2c;
+    --success-soft: #e7f5e9;
+    --shadow: 0 22px 60px rgba(23, 37, 43, 0.14);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    min-width: 320px;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 28px 18px;
+    background:
+        linear-gradient(rgba(15, 118, 110, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 118, 110, 0.035) 1px, transparent 1px),
+        radial-gradient(circle at 12% 8%, rgba(242, 184, 75, 0.2), transparent 26%),
+        linear-gradient(135deg, #eaf2ef 0%, #f8f6ef 52%, #e4efec 100%);
+    background-size: 34px 34px, 34px 34px, auto, auto;
+    color: var(--ink);
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+    color: var(--ink);
+    font-family: Georgia, "Times New Roman", serif;
+    line-height: 1.1;
+}
+
+h1 {
+    margin: 0;
+    font-size: clamp(2rem, 5vw, 3rem);
+    letter-spacing: 0;
+}
+
+h2 {
+    margin: 12px 0 24px;
+    font-size: clamp(1.35rem, 3vw, 1.8rem);
+}
+
+h3 {
+    margin: 24px 0 10px;
+    font-size: 1.2rem;
+}
+
+p {
+    color: var(--muted);
+}
+
+a {
+    color: var(--teal-dark);
+    font-weight: 700;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+}
+
+a:hover {
+    color: var(--teal);
+}
+
+hr {
+    margin: 24px 0;
+    border: 0;
+    border-top: 1px solid var(--line);
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    min-height: 46px;
+    padding: 11px 18px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--teal);
+    color: #ffffff;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+button:hover {
+    background: var(--teal-dark);
+    box-shadow: 0 8px 18px rgba(15, 118, 110, 0.2);
+    transform: translateY(-1px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+form {
+    margin: 0;
+}
+
+label {
+    display: block;
+    margin: 18px 0 7px;
+    color: var(--ink);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+input,
+select {
+    width: 100%;
+    min-height: 46px;
+    padding: 11px 13px;
+    border: 1px solid #b9cbc6;
+    border-radius: 8px;
+    outline: none;
+    background: #ffffff;
+    color: var(--ink);
+}
+
+input:focus,
+select:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+}
+
+.auth-container,
+.dashboard-container {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(23, 37, 43, 0.12);
+    border-radius: 18px 18px 8px 8px;
+    background: rgba(255, 253, 248, 0.96);
+    box-shadow: var(--shadow);
+}
+
+.auth-container::before,
+.dashboard-container::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 7px;
+    background: repeating-linear-gradient(
+        90deg,
+        var(--teal) 0 42px,
+        var(--amber) 42px 84px
+    );
+}
+
+.auth-container {
+    width: min(100%, 460px);
+    margin: 4vh auto;
+    padding: clamp(28px, 5vw, 46px);
+}
+
+.auth-container h1 {
+    margin-bottom: 10px;
+}
+
+.auth-container h2 {
+    color: var(--teal-dark);
+}
+
+.auth-container p {
+    margin: 18px 0 0;
+}
+
+.auth-container button {
+    width: 100%;
+    margin-top: 26px;
+}
+
+.auth-container .g-recaptcha {
+    margin-top: 22px;
+}
+
+.dashboard-container {
+    width: min(100%, 1120px);
+    margin: 4vh auto;
+    padding: clamp(28px, 5vw, 48px);
+}
+
+.dashboard-container > h1 {
+    max-width: 760px;
+}
+
+.dashboard-container > h2 {
+    color: var(--teal-dark);
+}
+
+.dashboard-container > p {
+    margin: 10px 0;
+}
+
+.dashboard-container > p strong {
+    color: var(--ink);
+}
+
+.dashboard-container > form {
+    margin: 18px 0;
+}
+
+.dashboard-container > form button {
+    min-width: 220px;
+}
+
+.dashboard-container form[style*="display:inline"] {
+    display: inline-flex !important;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.dashboard-container form[style*="display:inline"] button {
+    min-height: 36px;
+    padding: 7px 12px;
+    background: #d97955;
+    font-size: 0.85rem;
+}
+
+.dashboard-container form[style*="display:inline"] button:hover {
+    background: #b85c3e;
+}
+
+.dashboard-container table {
+    width: 100%;
+    margin-top: 20px;
+    border: 1px solid var(--line);
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    border-radius: 10px;
+    background: #ffffff;
+    text-align: left;
+}
+
+.dashboard-container th,
+.dashboard-container td {
+    padding: 13px 14px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+}
+
+.dashboard-container th {
+    background: var(--teal-soft);
+    color: var(--teal-dark);
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.dashboard-container tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.dashboard-container tbody tr:hover {
+    background: #fbfdfc;
+}
+
+.dashboard-container td {
+    color: var(--muted);
+}
+
+.dashboard-container td a {
+    white-space: nowrap;
+}
+
+.error,
 .success {
-    padding: 10px;
-    margin-bottom: 15px;
-    background: #dff5e1;
-    color: #176b2c;
-    border-radius: 5px;
+    margin: 14px 0;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.error {
+    border: 1px solid #f0c6bf;
+    background: var(--error-soft);
+    color: var(--error);
+}
+
+.success {
+    border: 1px solid #b9dfc0;
+    background: var(--success-soft);
+    color: var(--success);
 }
 
 .qr-container {
-    text-align: center;
-    margin: 20px 0;
+    display: grid;
+    place-items: center;
+    margin: 24px 0;
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #ffffff;
 }
 
 .qr-container img {
-    width: 220px;
-    height: 220px;
+    width: min(220px, 100%);
+    height: auto;
+}
+
+@media (max-width: 720px) {
+    body {
+        padding: 16px 10px;
+    }
+
+    .auth-container,
+    .dashboard-container {
+        margin: 12px auto;
+        padding: 28px 20px;
+    }
+
+    .dashboard-container {
+        overflow-x: auto;
+    }
+
+    .dashboard-container table {
+        min-width: 720px;
+    }
+}
+
+@media (max-width: 460px) {
+    .auth-container,
+    .dashboard-container {
+        border-radius: 14px 14px 6px 6px;
+    }
+
+    .dashboard-container form[style*="display:inline"] {
+        margin: 8px 0 0;
+    }
 }
