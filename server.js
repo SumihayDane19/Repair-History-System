@@ -6,6 +6,7 @@ const session = require("express-session");
 const connectDB = require("./config/database");
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/users");
+const auditRoutes = require("./routes/audit");
 
 const app = express();
 
@@ -76,6 +77,12 @@ app.use("/auth", authRoutes);
 // ========================================
 
 app.use("/users", userRoutes);
+
+// ========================================
+// AUDIT ROUTES
+// ========================================
+
+app.use("/audit", auditRoutes);
 
 // ========================================
 // DASHBOARD

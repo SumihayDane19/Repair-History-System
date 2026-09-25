@@ -1,6 +1,8 @@
 const bcrypt = require("bcryptjs");
 
 const User = require("../models/User");
+const createAuditLog =
+    require("../utils/auditLogger");
 
 // ========================================
 // USER MANAGEMENT PAGE
@@ -157,6 +159,17 @@ exports.create = async (req, res) => {
 
         await user.save();
 
+        await createAuditLog({
+            userId: req.session.userId,
+            action: "USER_CREATED",
+            target: "User",
+            targetId: user._id.toString(),
+            description:
+                `Administrator created user ${user.username}.`,
+            ipAddress:
+                req.ip
+        });
+
         res.redirect("/users");
 
     } catch (error) {
@@ -274,6 +287,17 @@ exports.update = async (req, res) => {
 
         await user.save();
 
+        await createAuditLog({
+            userId: req.session.userId,
+            action: "USER_UPDATED",
+            target: "User",
+            targetId: user._id.toString(),
+            description:
+                `Administrator updated user ${user.username}.`,
+            ipAddress:
+                req.ip
+        });
+
         res.redirect("/users");
 
     } catch (error) {
@@ -326,6 +350,17 @@ exports.deactivate = async (
 
         await user.save();
 
+        await createAuditLog({
+            userId: req.session.userId,
+            action: "USER_DEACTIVATED",
+            target: "User",
+            targetId: user._id.toString(),
+            description:
+                `Administrator deactivated user ${user.username}.`,
+            ipAddress:
+                req.ip
+        });
+
         res.redirect("/users");
 
     } catch (error) {
@@ -364,6 +399,17 @@ exports.activate = async (
         user.isActive = true;
 
         await user.save();
+
+        await createAuditLog({
+            userId: req.session.userId,
+            action: "USER_ACTIVATED",
+            target: "User",
+            targetId: user._id.toString(),
+            description:
+                `Administrator activated user ${user.username}.`,
+            ipAddress:
+                req.ip
+        });
 
         res.redirect("/users");
 
